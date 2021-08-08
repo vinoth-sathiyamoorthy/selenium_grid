@@ -4,7 +4,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time
 
 
-@pytest.fixture(params=["chrome", "firefox"], scope="class")
+@pytest.fixture(params=["chrome", "firefox", "edge"], scope="class")
 def driver_init(request):
 
     driver = None
@@ -18,9 +18,14 @@ def driver_init(request):
             command_executor='http://localhost:4444/wd/hub',
             desired_capabilities=DesiredCapabilities.FIREFOX)
     if request.param == "edge":
+        # DesiredCapabilities.EDGE Platform is Windows by default.
+        # Since we are testing using our docker selenium_node, lets change it
+        # to Linux
+        capabilities = DesiredCapabilities.EDGE
+        capabilities["platform"] = "ANY"
         driver = webdriver.Remote(
             command_executor='http://localhost:4444/wd/hub',
-            desired_capabilities=DesiredCapabilities.EDGE)
+            desired_capabilities=capabilities)
 
     request.cls.driver = driver
     yield
